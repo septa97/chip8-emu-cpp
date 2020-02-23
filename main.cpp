@@ -1,12 +1,18 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
+#include "chip8.cpp"
+
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
 int main(int argc, char *argv[]) {
     SDL_Window *window = NULL;
     SDL_Surface *screenSurface = NULL;
+
+    Chip8 chip8 = Chip8();
+
+    chip8.initiliaze("roms/pong2.c8");
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());

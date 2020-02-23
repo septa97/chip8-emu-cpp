@@ -9,21 +9,7 @@ class Chip8 {
     public:
         unsigned char gfx[GFX_SIZE];
 
-    private:
-        bool drawFlag;
-        unsigned short opcode;
-        unsigned char memory[MEMORY_SIZE];
-        unsigned char V[16]; // CPU registers
-        unsigned short I; // Index register
-        unsigned short pc; // program counter
-        unsigned char delay_timer;
-        unsigned char sound_timer;
-        unsigned short stack[16];
-        unsigned short sp; // stack pointer
-        unsigned char key[KEYPAD_SIZE]; // keypad
-        static unsigned char fontset[FONTSET_SIZE];
-
-    void initiliaze(char *file_path) { // TODO: should I use `const`? why?
+    void initiliaze(const char *file_path) {
         pc = 0x200; // program counter starts at 0x200
         opcode = 0;
         I = 0;
@@ -53,17 +39,16 @@ class Chip8 {
         printf("Loading ROM %s...\n", file_path);
 
         // Open ROM file
-        FILE *rom = fopen(file_path, "rb"); // read as bytes
-        if (rom == NULL) {
+        FILE *rom_fp= fopen(file_path, "rb"); // read as bytes
+        if (rom_fp == NULL) {
             printf("Failed to open ROM.\n");
             return;
         }
 
         // Get file size
-        // TODO: wth are these functions?
-        fseek(rom, 0, SEEK_END);
-        long rom_size = ftell(rom);
-        rewind(rom);
+        fseek(rom_fp, 0, SEEK_END); // set the position indicator to the end of the stream
+        long rom_size = ftell(rom_fp); // return the number of bytes from the beginning of the file up to the current position indicator (that's why the position indicator is set using the `fseek` function call above)
+        rewind(rom_fp); // set the position indicator to the beginning of the stream
 
         // Allocate memory to store ROM
         char *rom_buffer = (char *) malloc(sizeof(char) * rom_size);
@@ -72,8 +57,8 @@ class Chip8 {
             return;
         }
 
-        // Copy ROM into buffer
-        size_t result = fread(rom_buffer, sizeof(char), (size_t)rom_size, rom);
+        // store the data from the stream `rom_fp` to the block of memory `rom_buffer`
+        size_t result = fread(rom_buffer, sizeof(char), (size_t)rom_size, rom_fp);
         if (result != rom_size) {
             printf("Failed to read ROM.\n");
             return;
@@ -90,11 +75,23 @@ class Chip8 {
         }
 
         // Clean up
-        fclose(rom);
+        fclose(rom_fp);
         free(rom_buffer);
-
-        // TODO: STUDY THE FUNCTIONS ABOVE
     }
+
+    private:
+        bool drawFlag;
+        unsigned short opcode;
+        unsigned char memory[MEMORY_SIZE];
+        unsigned char V[16]; // CPU registers
+        unsigned short I; // Index register
+        unsigned short pc; // program counter
+        unsigned char delay_timer;
+        unsigned char sound_timer;
+        unsigned short stack[16];
+        unsigned short sp; // stack pointer
+        unsigned char key[KEYPAD_SIZE]; // keypad
+        static unsigned char fontset[FONTSET_SIZE];
 
     void emulateCycle() {
         // fetch opcode
