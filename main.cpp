@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 
     Chip8 chip8 = Chip8();
 
-    // TODO: dynamically get the path using the `arvg` parameter
+    // TODO: dynamically get the path using the `argv` parameter
     chip8.initiliaze("roms/pong2.c8");
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
