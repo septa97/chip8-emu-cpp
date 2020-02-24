@@ -12,8 +12,14 @@ int main(int argc, char *argv[]) {
 
     Chip8 chip8 = Chip8();
 
-    // TODO: dynamically get the path using the `argv` parameter
-    chip8.initiliaze("roms/pong2.c8");
+    if (argv[1] == NULL) {
+        printf("Usage: ./chip8 <path-to-ROM-file>\n");
+        return 1;
+    }
+
+    printf("ROM file: %s\n", argv[1]);
+
+    chip8.initiliaze(argv[1]);
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
