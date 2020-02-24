@@ -9,11 +9,57 @@ class Chip8 {
     public:
         unsigned char gfx[GFX_SIZE];
 
-    void initiliaze(const char *file_path) {
+    bool load_rom(const char *file_path) {
+        printf("Loading ROM %s...\n", file_path);
+
+        // Open ROM file
+        FILE *rom_fp= fopen(file_path, "rb"); // read as bytes
+        if (rom_fp == NULL) {
+            printf("Failed to open ROM.\n");
+            return false;
+        }
+
+        // Get file size
+        fseek(rom_fp, 0, SEEK_END); // set the position indicator to the end of the stream
+        long rom_size = ftell(rom_fp); // return the number of bytes from the beginning of the file up to the current position indicator (that's why the position indicator is set using the `fseek` function call above)
+        rewind(rom_fp); // set the position indicator to the beginning of the stream
+
+        // Allocate memory to store ROM
+        char *rom_buffer = (char *) malloc(sizeof(char) * rom_size);
+        if (rom_buffer == NULL) {
+            printf("Failed to allocate memory for ROM.\n");
+            return false;
+        }
+
+        // store the data from the stream `rom_fp` to the block of memory `rom_buffer`
+        size_t result = fread(rom_buffer, sizeof(char), (size_t)rom_size, rom_fp);
+        if (result != rom_size) {
+            printf("Failed to read ROM.\n");
+            return false;
+        }
+
+        // Copy buffer to memory
+        if ((MEMORY_SIZE-512) > rom_size) {
+            for (int i = 0; i < rom_size; i++) {
+                memory[i+512] = rom_buffer[i]; // TODO: do I need to typecast?
+            }
+        } else {
+            printf("ROM too large to fit in memory.\n");
+            return false;
+        }
+
+        // Clean up
+        fclose(rom_fp);
+        free(rom_buffer);
+
+        return true;
+    }
+
+    void initiliaze() {
         pc = 0x200; // program counter starts at 0x200
         opcode = 0;
         I = 0;
-        pc = 0;
+        sp = 0;
 
         // clear the display
         for (int i = 0; i < GFX_SIZE; i++) {
@@ -35,65 +81,9 @@ class Chip8 {
         // reset timers
         delay_timer = 0;
         sound_timer = 0;
-
-        printf("Loading ROM %s...\n", file_path);
-
-        // Open ROM file
-        FILE *rom_fp= fopen(file_path, "rb"); // read as bytes
-        if (rom_fp == NULL) {
-            printf("Failed to open ROM.\n");
-            return;
-        }
-
-        // Get file size
-        fseek(rom_fp, 0, SEEK_END); // set the position indicator to the end of the stream
-        long rom_size = ftell(rom_fp); // return the number of bytes from the beginning of the file up to the current position indicator (that's why the position indicator is set using the `fseek` function call above)
-        rewind(rom_fp); // set the position indicator to the beginning of the stream
-
-        // Allocate memory to store ROM
-        char *rom_buffer = (char *) malloc(sizeof(char) * rom_size);
-        if (rom_buffer == NULL) {
-            printf("Failed to allocate memory for ROM.\n");
-            return;
-        }
-
-        // store the data from the stream `rom_fp` to the block of memory `rom_buffer`
-        size_t result = fread(rom_buffer, sizeof(char), (size_t)rom_size, rom_fp);
-        if (result != rom_size) {
-            printf("Failed to read ROM.\n");
-            return;
-        }
-
-        // Copy buffer to memory
-        if ((MEMORY_SIZE-512) > rom_size) {
-            for (int i = 0; i < rom_size; i++) {
-                memory[i+512] = rom_buffer[i]; // TODO: do I need to typecast?
-            }
-        } else {
-            printf("ROM too large to fit in memory.\n");
-            return;
-        }
-
-        // Clean up
-        fclose(rom_fp);
-        free(rom_buffer);
     }
 
-    private:
-        bool drawFlag;
-        unsigned short opcode;
-        unsigned char memory[MEMORY_SIZE];
-        unsigned char V[16]; // CPU registers
-        unsigned short I; // Index register
-        unsigned short pc; // program counter
-        unsigned char delay_timer;
-        unsigned char sound_timer;
-        unsigned short stack[16];
-        unsigned short sp; // stack pointer
-        unsigned char key[KEYPAD_SIZE]; // keypad
-        static unsigned char fontset[FONTSET_SIZE];
-
-    void emulateCycle() {
+    void emulate_cycle() {
         // fetch opcode
         opcode = memory[pc] << 8 | memory[pc+1];
 
@@ -116,7 +106,7 @@ class Chip8 {
                         pc += 2;
                         break;
                     // 0NNN (call): Calls RCA 1802 program at address NNN. Not necessary for most ROMs.
-                    
+
                     // default
                     default:
                         printf("Unknown opcode.\n");
@@ -276,7 +266,7 @@ class Chip8 {
                         } else {
                             V[0xF] = 1;
                         }
-                        
+
                         V[X] = V[Y] - V[X];
                         pc += 2;
                         break;
@@ -473,6 +463,20 @@ class Chip8 {
             sound_timer--;
         }
     }
+
+    private:
+        bool drawFlag;
+        unsigned short opcode;
+        unsigned char memory[MEMORY_SIZE];
+        unsigned char V[16]; // CPU registers
+        unsigned short I; // Index register
+        unsigned short pc; // program counter
+        unsigned char delay_timer;
+        unsigned char sound_timer;
+        unsigned short stack[16];
+        unsigned short sp; // stack pointer
+        unsigned char key[KEYPAD_SIZE]; // keypad
+        static unsigned char fontset[FONTSET_SIZE];
 };
 
 unsigned char Chip8::fontset[FONTSET_SIZE] = 
