@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 
     Chip8 chip8 = Chip8();
 
-    if (argv[1] == NULL) {
+    if (argc != 2) {
         printf("Usage: ./chip8 <path-to-ROM-file>\n");
         return 1;
     }
