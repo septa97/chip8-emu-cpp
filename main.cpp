@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include <SDL2/SDL.h>
 
 #include "chip8.cpp"
