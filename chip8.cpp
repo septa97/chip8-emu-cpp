@@ -7,7 +7,7 @@
 
 class Chip8 {
     public:
-        unsigned char gfx[GFX_SIZE];
+        unsigned char gfx[GFX_SIZE]; // TODO: try using a 2D array here
 
     bool load_rom(const char *file_path) {
         printf("Loading ROM %s...\n", file_path);
@@ -324,21 +324,21 @@ class Chip8 {
                 unsigned short X = (opcode & 0x0F00) >> 8;
                 unsigned short Y = (opcode & 0x00F0) >> 4;
                 unsigned short N = opcode & 0x000F;
-                unsigned short pixel;
+                unsigned char pixel;
 
                 V[0xF] = 0;
 
-                for (int y = 0; y < N; y++) {
-                    pixel = memory[I+y];
+                for (int i= 0; i < N; i++) {
+                    pixel = memory[I+i];
 
-                    for (int x = 0; x < 8; x++) {
+                    for (int j= 0; j < 8; j++) {
                         // TODO: understand this
-                        if ((pixel & (0x80 >> x)) != 0) {
-                            if (gfx[V[X] + x + ((V[Y] + y) * 64)] == 1) {
+                        if ((pixel & (0x80 >> j)) != 0) {
+                            if (gfx[V[X] + j + ((V[Y] + i) * 64)] == 1) {
                                 V[0xF] = 1;
                             }
 
-                            gfx[V[X] + x + ((V[Y] + y) * 64)] ^= 1;
+                            gfx[V[X] + j + ((V[Y] + i) * 64)] ^= 1;
                         }
                     }
                 }
