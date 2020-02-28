@@ -1,4 +1,5 @@
 # chip8-emu-cpp
+> CHIP-8 Emulator written in C++ (interpreted)
 
 ## Building the emulator
 * `make all`
