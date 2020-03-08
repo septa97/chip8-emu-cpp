@@ -11,9 +11,8 @@ class Chip8 {
 
     bool load_rom(const char *file_path) {
         printf("Loading ROM %s...\n", file_path);
-
         // Open ROM file
-        FILE *rom_fp= fopen(file_path, "rb"); // read as bytes
+        FILE *rom_fp = fopen(file_path, "rb"); // read as bytes
         if (rom_fp == NULL) {
             printf("Failed to open ROM.\n");
             return false;
@@ -39,9 +38,9 @@ class Chip8 {
         }
 
         // Copy buffer to memory
-        if ((MEMORY_SIZE-512) > rom_size) {
+        if ((MEMORY_SIZE-0x200) > rom_size) {
             for (int i = 0; i < rom_size; i++) {
-                memory[i+512] = rom_buffer[i]; // TODO: do I need to typecast?
+                memory[i+0x200] = rom_buffer[i]; // TODO: do I need to typecast?
             }
         } else {
             printf("ROM too large to fit in memory.\n");
@@ -106,6 +105,7 @@ class Chip8 {
                         pc += 2;
                         break;
                     // 0NNN (call): Calls RCA 1802 program at address NNN. Not necessary for most ROMs.
+                    // Only needed if emulating the RCA 1802 processor
 
                     // default
                     default:
@@ -246,8 +246,8 @@ class Chip8 {
                         pc += 2;
                         break;
                     }
-                    // 8XY6 (bitOp): Stores the least significant bit of VX in VF and then shifts VX to the right by 1.
-                    // TODO: tf is the purpose of Y here?
+                    // 8Xx6 (bitOp): Stores the least significant bit of VX in VF and then shifts VX to the right by 1.
+                    // "x" means no relevance
                     case 0x8006: {
                         unsigned short X = (opcode & 0x0F00) >> 8;
                         V[0xF] = V[X] & 1;
@@ -271,8 +271,8 @@ class Chip8 {
                         pc += 2;
                         break;
                     }
-                    // 8XYE (bitOp): Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
-                    // TODO: tf is the purpose of Y here?
+                    // 8XxE (bitOp): Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
+                    // "x" means no relevance
                     case 0x800E: {
                         unsigned short X = (opcode & 0x0F00) >> 8;
                         V[0xF] = V[X] >> 7;
@@ -431,6 +431,8 @@ class Chip8 {
                         pc += 2;
                         break;
                     }
+                    // FX29 (MEM):
+                    case 0xF029: break; // TODO: implement this
                     // FX33 (MEM): Stores the binary-coded decimal (BCD) representation of VX,
                     //              with the most significant of three digits at the address in I,
                     //              the middle digit at I+1,
@@ -442,6 +444,10 @@ class Chip8 {
                         memory[I+2] = V[X] % 10;
                         break;
                     }
+                    // FX55 (MEM):
+                    case 0xF055: break; // TODO: implement this
+                    // FX65 (MEM):
+                    case 0xF055: break; // TODO: implement this
                 }
                 break;
 
