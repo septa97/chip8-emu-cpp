@@ -8,6 +8,7 @@
 
 class Chip8 {
     public:
+        bool drawFlag;
         uint8_t gfx[GFX_SIZE]; // TODO: try using a 2D array here
         uint8_t key[KEYPAD_SIZE]; // keypad
 
@@ -498,7 +499,6 @@ class Chip8 {
     }
 
     private:
-        bool drawFlag;
         uint16_t opcode;
         uint8_t memory[MEMORY_SIZE];
         uint8_t V[16]; // CPU registers

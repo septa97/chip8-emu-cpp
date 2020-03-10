@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <thread>
 #include <SDL2/SDL.h>
 #define KEYPAD_SIZE 16
 
@@ -26,10 +27,19 @@ SDL_Keycode keymap[KEYPAD_SIZE] = {
     SDLK_v
 };
 
+void drawFrame(SDL_Texture* texture, SDL_Renderer* renderer, uint32_t* pixels) {
+    SDL_UpdateTexture(texture, NULL, pixels, 64 * sizeof(uint32_t));
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
+}
+
 int main(int argc, char *argv[]) {
-    SDL_Window *window = NULL;
-    SDL_Surface *screenSurface = NULL;
+    SDL_Window* window = NULL;
+    SDL_Renderer* renderer = NULL;
+    SDL_Texture* texture = NULL;
     SDL_Event e;
+
+    uint32_t pixels[64 * 32];
 
     Chip8 chip8 = Chip8();
 
@@ -48,45 +58,69 @@ int main(int argc, char *argv[]) {
     }
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-    } else {
-        window = SDL_CreateWindow("SDL Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL could not initialize! SDL_Error: %s", SDL_GetError());
+        return 3;
+    }
+
+    if (SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &window, &renderer)) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window and renderer: %s", SDL_GetError());
+        return 3;
+    }
+
+    SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    // SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32); // Use #define on this
+
+    if (texture == NULL) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create texture: %s", SDL_GetError());
+    }
         
-        if (window == NULL) {
-            printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-            return 1;
-        } else {
-            screenSurface = SDL_GetWindowSurface(window);
+    bool quit = false;
 
-            bool quit = false;
+    while (!quit) {
+        chip8.emulate_cycle();
 
-            while (!quit) {
-                chip8.emulate_cycle();
-
-                while (SDL_PollEvent(&e)) { // 1 if there's an event, 0 if none
-                    // user requests to quit
-                    if (e.type == SDL_QUIT) {
-                        quit = true;
-                    } else if (e.type == SDL_KEYDOWN) {
-                        for (int i = 0; i < KEYPAD_SIZE; i++) {
-                            if (e.key.keysym.sym == keymap[i]) {
-                                chip8.key[i] = 1;
-                            }
-                        }
-                    } else if (e.type == SDL_KEYUP) {
-                        for (int i = 0; i < KEYPAD_SIZE; i++) {
-                            if (e.key.keysym.sym == keymap[i]) {
-                                chip8.key[i] = 0;
-                            }
-                        }
+        while (SDL_PollEvent(&e)) { // 1 if there's an event, 0 if none
+            // user requests to quit
+            if (e.type == SDL_QUIT) {
+                quit = true;
+            } else if (e.type == SDL_KEYDOWN) {
+                for (int i = 0; i < KEYPAD_SIZE; i++) {
+                    if (e.key.keysym.sym == keymap[i]) {
+                        chip8.key[i] = 1;
                     }
                 }
-
-                // SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
-
-                SDL_UpdateWindowSurface(window);
+            } else if (e.type == SDL_KEYUP) {
+                for (int i = 0; i < KEYPAD_SIZE; i++) {
+                    if (e.key.keysym.sym == keymap[i]) {
+                        chip8.key[i] = 0;
+                    }
+                }
             }
         }
+
+        // If drawFlag is true, redraw SDL screen
+        if (chip8.drawFlag) {
+            chip8.drawFlag = false;
+
+            // Store CHIP-8 gfx to pixels
+            for (int i = 0; i < 64 * 32; i++) {
+                uint8_t pixel = chip8.gfx[i];
+                // pixel values are either 1 or 0, multiply it by 0x00FFFFFF (which represents RGB) for either black or white
+                // then bit mask with (using OR) on 0xFF000000
+                pixels[i] = (0x00FFFFFF * pixel) | 0xFF000000;
+
+                // here's a more verbose implementation of the above line:
+                // pixels[i] = pixel ? 0xFFFFFFFF : 0xFF000000;
+                // but bit ops are fancier ;)
+            }
+
+            drawFrame(texture, renderer, pixels);
+        }
+
+        // TODO: research on emulator speed
+        // std::this_thread::sleep_for(std::chrono::microseconds(1200));
     }
 
     SDL_DestroyWindow(window);
