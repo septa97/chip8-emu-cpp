@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-void disassemble(unsigned char *buffer, unsigned short pc) { // TODO: research on uint8_t
+void disassemble(unsigned char *buffer, unsigned short pc) {
     unsigned char *code = &buffer[pc];
     unsigned char first_nibble = code[0] >> 4;
 
