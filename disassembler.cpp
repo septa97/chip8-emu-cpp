@@ -1,8 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
-
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
+#include <cstdint>
 
 void disassemble(uint8_t *buffer, uint16_t pc) {
     uint8_t *code = &buffer[pc];

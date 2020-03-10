@@ -1,12 +1,10 @@
 #include <cstdio>
 #include <cstdlib>
+#include <cstdint>
 #define FONTSET_SIZE 80
 #define GFX_SIZE 2048
 #define KEYPAD_SIZE 16
 #define MEMORY_SIZE 4096
-
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
 
 class Chip8 {
     public:
