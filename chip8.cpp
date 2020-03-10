@@ -8,6 +8,7 @@
 class Chip8 {
     public:
         unsigned char gfx[GFX_SIZE]; // TODO: try using a 2D array here
+        unsigned char key[KEYPAD_SIZE]; // keypad
 
     bool load_rom(const char *file_path) {
         printf("Loading ROM %s...\n", file_path);
@@ -40,7 +41,7 @@ class Chip8 {
         // Copy buffer to memory
         if ((MEMORY_SIZE-0x200) > rom_size) {
             for (int i = 0; i < rom_size; i++) {
-                memory[i+0x200] = rom_buffer[i]; // TODO: do I need to typecast?
+                memory[i+0x200] = rom_buffer[i];
             }
         } else {
             printf("ROM too large to fit in memory.\n");
@@ -431,7 +432,8 @@ class Chip8 {
                         pc += 2;
                         break;
                     }
-                    // FX29 (MEM):
+                    // FX29 (MEM): Sets I to the location of the sprite for the character in VX.
+                    // 				Characters 0-F (in hex) are represented by a 4x5 font.
                     case 0xF029: break; // TODO: implement this
                     // FX33 (MEM): Stores the binary-coded decimal (BCD) representation of VX,
                     //              with the most significant of three digits at the address in I,
@@ -444,10 +446,12 @@ class Chip8 {
                         memory[I+2] = V[X] % 10;
                         break;
                     }
-                    // FX55 (MEM):
+                    // FX55 (MEM): Stores V0 to VX (including VX) in memory starting at address I.
+                    //				The offset from I is increased by 1 for each value written, but I itself is left unmodified.
                     case 0xF055: break; // TODO: implement this
-                    // FX65 (MEM):
-                    case 0xF055: break; // TODO: implement this
+                    // FX65 (MEM): Fills V0 to VX with values from memory starting at address I.
+                    //				The offset from I is increased by 1 for each value read, but I itself is left unmodified.
+                    case 0xF065: break; // TODO: implement this
                 }
                 break;
 
@@ -475,13 +479,12 @@ class Chip8 {
         unsigned short opcode;
         unsigned char memory[MEMORY_SIZE];
         unsigned char V[16]; // CPU registers
-        unsigned short I; // Index register
+        unsigned short I; // Index register / memory address register
         unsigned short pc; // program counter
         unsigned char delay_timer;
         unsigned char sound_timer;
         unsigned short stack[16];
         unsigned short sp; // stack pointer
-        unsigned char key[KEYPAD_SIZE]; // keypad
         static unsigned char fontset[FONTSET_SIZE];
 };
 
