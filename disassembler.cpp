@@ -1,9 +1,12 @@
 #include <cstdio>
 #include <cstdlib>
 
-void disassemble(unsigned char *buffer, unsigned short pc) {
-    unsigned char *code = &buffer[pc];
-    unsigned char first_nibble = code[0] >> 4;
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+
+void disassemble(uint8_t *buffer, uint16_t pc) {
+    uint8_t *code = &buffer[pc];
+    uint8_t first_nibble = code[0] >> 4;
 
     printf("%04x %02x %02x: ", pc, code[0], code[1]);
     switch (first_nibble) {
@@ -77,11 +80,11 @@ int main(int argc, char *argv[]) {
     fseek(fp, 0, SEEK_SET); // pointer to the start of stream
 
     printf("rom size: %ld bytes.\n", rom_size);
-    unsigned char *buffer = (unsigned char *)malloc(rom_size + 0x200);
+    uint8_t *buffer = (uint8_t *)malloc(rom_size + 0x200);
     fread(buffer + 0x200, rom_size, 1, fp);
     fclose(fp);
 
-    unsigned short pc = 0x200;
+    uint16_t pc = 0x200;
     while (pc < rom_size+0x200) {
         disassemble(buffer, pc);
         pc += 2;

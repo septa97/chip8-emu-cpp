@@ -5,10 +5,13 @@
 #define KEYPAD_SIZE 16
 #define MEMORY_SIZE 4096
 
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+
 class Chip8 {
     public:
-        unsigned char gfx[GFX_SIZE]; // TODO: try using a 2D array here
-        unsigned char key[KEYPAD_SIZE]; // keypad
+        uint8_t gfx[GFX_SIZE]; // TODO: try using a 2D array here
+        uint8_t key[KEYPAD_SIZE]; // keypad
 
     bool load_rom(const char *file_path) {
         printf("Loading ROM %s...\n", file_path);
@@ -125,8 +128,8 @@ class Chip8 {
                 break;
             // 3XNN (cond): Skips the next instruction if VX equals NN.
             case 0x3000: {
-                unsigned short X = (opcode & 0x0F00) >> 8;
-                unsigned short NN = opcode & 0x00FF;
+                uint16_t X = (opcode & 0x0F00) >> 8;
+                uint16_t NN = opcode & 0x00FF;
 
                 if (V[X] == NN) {
                     pc += 4;
@@ -137,8 +140,8 @@ class Chip8 {
             }
             // 4XNN (cond): Skips the next instruction if VX is not equal to NN.
             case 0x4000: {
-                unsigned short X = (opcode & 0x0F00) >> 8;
-                unsigned short NN = opcode & 0x00FF;
+                uint16_t X = (opcode & 0x0F00) >> 8;
+                uint16_t NN = opcode & 0x00FF;
 
                 if (V[X] == NN) {
                     pc += 4;
@@ -149,8 +152,8 @@ class Chip8 {
             }
             // 5XY0 (cond): Skips the next instruction if VX is equal to VY.
             case 0x5000: {
-                unsigned short X = (opcode & 0x0F00) >> 8;
-                unsigned short Y = (opcode & 0x00F0) >> 4;
+                uint16_t X = (opcode & 0x0F00) >> 8;
+                uint16_t Y = (opcode & 0x00F0) >> 4;
 
                 if (V[X] == V[Y]) {
                     pc += 4;
@@ -161,8 +164,8 @@ class Chip8 {
             }
             // 6XNN (const): Sets VX to NN.
             case 0x6000: {
-                unsigned short X = (opcode & 0x0F00) >> 8;
-                unsigned short NN = opcode & 0x00FF;
+                uint16_t X = (opcode & 0x0F00) >> 8;
+                uint16_t NN = opcode & 0x00FF;
 
                 V[X] = NN;
                 pc += 2;
@@ -170,8 +173,8 @@ class Chip8 {
             }
             // 7XNN (const): Adds NN to VX.
             case 0x7000: {
-                unsigned short X = (opcode & 0x0F00) >> 8;
-                unsigned short NN = opcode & 0x00FF;
+                uint16_t X = (opcode & 0x0F00) >> 8;
+                uint16_t NN = opcode & 0x00FF;
 
                 V[X] += NN;
                 pc += 2;
@@ -181,8 +184,8 @@ class Chip8 {
                 switch (opcode & 0xF00F) {
                     // 8XY0 (assign): Sets VX to the value of VY.
                     case 0x8000: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
-                        unsigned short Y = (opcode & 0x00F0) >> 4;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        uint16_t Y = (opcode & 0x00F0) >> 4;
 
                         V[X] = V[Y];
                         pc += 2;
@@ -190,8 +193,8 @@ class Chip8 {
                     }
                     // 8XY1 (bitOp): Sets VX to VX bitwise or VY.
                     case 0x8001: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
-                        unsigned short Y = (opcode & 0x00F0) >> 4;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        uint16_t Y = (opcode & 0x00F0) >> 4;
 
                         V[X] |= V[Y];
                         pc += 2;
@@ -199,8 +202,8 @@ class Chip8 {
                     }
                     // 8XY2 (bitOp): Sets VX to VX bitwise and VY.
                     case 0x8002: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
-                        unsigned short Y = (opcode & 0x00F0) >> 4;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        uint16_t Y = (opcode & 0x00F0) >> 4;
 
                         V[X] &= V[Y];
                         pc += 2;
@@ -208,8 +211,8 @@ class Chip8 {
                     }
                     // 8XY3 (bitOp): Sets VX to VX xor VY.
                     case 0x8003: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
-                        unsigned short Y = (opcode & 0x00F0) >> 4;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        uint16_t Y = (opcode & 0x00F0) >> 4;
 
                         V[X] ^= V[Y];
                         pc += 2;
@@ -217,8 +220,8 @@ class Chip8 {
                     }
                     // 8XY4 (math): Adds VY to VX. VF is set to 1 when there's a carry, 0 when there's none.
                     case 0x8004: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
-                        unsigned short Y = (opcode & 0x00F0) >> 4;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        uint16_t Y = (opcode & 0x00F0) >> 4;
 
                         // TODO: check if this is correct
                         if (V[X] + V[Y] > 0xFF) {
@@ -233,8 +236,8 @@ class Chip8 {
                     }
                     // 8XY5 (math): VY is subtracted from VX. VF is set to 0 when there's a borrow, 1 when there's none.
                     case 0x8005: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
-                        unsigned short Y = (opcode & 0x00F0) >> 4;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        uint16_t Y = (opcode & 0x00F0) >> 4;
 
                         // TODO: check if this is correct
                         if (V[X] - V[Y] < 0) {
@@ -250,7 +253,7 @@ class Chip8 {
                     // 8Xx6 (bitOp): Stores the least significant bit of VX in VF and then shifts VX to the right by 1.
                     // "x" means no relevance
                     case 0x8006: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
                         V[0xF] = V[X] & 1;
                         V[X] >>= 1;
 
@@ -259,8 +262,8 @@ class Chip8 {
                     }
                     // 8XY7 (math): Sets VX to VY - VX. VF is set to 0 when there's a borrow, 1 when there's none.
                     case 0x8007: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
-                        unsigned short Y = (opcode & 0x00F0) >> 4;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        uint16_t Y = (opcode & 0x00F0) >> 4;
 
                         if (V[Y] - V[X] < 0) {
                             V[0xF] = 0;
@@ -275,7 +278,7 @@ class Chip8 {
                     // 8XxE (bitOp): Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
                     // "x" means no relevance
                     case 0x800E: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
                         V[0xF] = V[X] >> 7;
                         V[X] <<= 1;
 
@@ -287,8 +290,8 @@ class Chip8 {
                 }
             // 9XY0 (cond): Skips the next instruction if VX is not equal to VY.
             case 0x9000: {
-                unsigned short X = (opcode & 0x0F00) >> 8;
-                unsigned short Y = (opcode & 0x00F0) >> 4;
+                uint16_t X = (opcode & 0x0F00) >> 8;
+                uint16_t Y = (opcode & 0x00F0) >> 4;
 
                 if (V[X] != V[Y]) {
                     pc += 4;
@@ -308,9 +311,9 @@ class Chip8 {
                 break;
             // CXNN (rand): Sets VX to the result of a `bitwise and` operation on a random number (typically, from 0 to 255) and NN.
             case 0xC000: {
-                unsigned short X = (opcode & 0x0F00) >> 8;
-                unsigned short NN = opcode & 0x00FF;
-                unsigned char num = rand() % 0xFF;
+                uint16_t X = (opcode & 0x0F00) >> 8;
+                uint16_t NN = opcode & 0x00FF;
+                uint8_t num = rand() % 0xFF;
 
                 V[X] = num & NN;
                 pc += 2;
@@ -322,10 +325,10 @@ class Chip8 {
             //              As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn,
             //              and to 0 if that doesn't happen.
             case 0xD000: {
-                unsigned short X = (opcode & 0x0F00) >> 8;
-                unsigned short Y = (opcode & 0x00F0) >> 4;
-                unsigned short N = opcode & 0x000F;
-                unsigned char pixel;
+                uint16_t X = (opcode & 0x0F00) >> 8;
+                uint16_t Y = (opcode & 0x00F0) >> 4;
+                uint16_t N = opcode & 0x000F;
+                uint8_t pixel;
 
                 V[0xF] = 0;
 
@@ -352,7 +355,7 @@ class Chip8 {
                 switch (opcode & 0xF0FF) {
                     // EX9E (keyOp): Skips the next instruction if the key stored in VX is pressed.
                     case 0xE09E: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
 
                         if (key[V[X]] != 0) {
                             pc += 4;
@@ -363,7 +366,7 @@ class Chip8 {
                     }
                     // EXA1 (keyOp): Skips the next instruction if the key stored in VX is not pressed.
                     case 0xE0A1: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
 
                         if (key[V[X]] == 0) {
                             pc += 4;
@@ -378,7 +381,7 @@ class Chip8 {
                 switch (opcode & 0xF0FF) {
                     // FX07 (timer): Sets VX to the value of the delay timer
                     case 0xF007: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
 
                         V[X] = delay_timer;
                         pc += 2;
@@ -391,7 +394,7 @@ class Chip8 {
 
                         for (int i = 0; i < KEYPAD_SIZE; i++) {
                             if (key[i] != 0) {
-                                unsigned short X = (opcode & 0x0F00) >> 8;
+                                uint16_t X = (opcode & 0x0F00) >> 8;
                                 V[X] = i;
                                 keyPressed = true;
                             }
@@ -404,7 +407,7 @@ class Chip8 {
                     }
                     // FX15 (timer): Sets the delay timer to VX.
                     case 0xF015: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
 
                         delay_timer = V[X];
                         pc += 2;
@@ -412,7 +415,7 @@ class Chip8 {
                     }
                     // FX18 (sound): Sets the sound timer to VX.
                     case 0xF018: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
 
                         sound_timer = V[X];
                         pc += 2;
@@ -420,7 +423,7 @@ class Chip8 {
                     }
                     // FX1E (MEM): Adds VX to I. VF is set to 1 when there is a range overflow (I + VX > 0xFFF), and to 0 when there isn't
                     case 0xF01E: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
 
                         if (I + V[X] > 0xFFF) {
                             V[0xF] = 1;
@@ -440,7 +443,7 @@ class Chip8 {
                     //              the middle digit at I+1,
                     //              and the least significant digit at I+2.
                     case 0xF033: {
-                        unsigned short X = (opcode & 0x0F00) >> 8;
+                        uint16_t X = (opcode & 0x0F00) >> 8;
                         memory[I] = V[X] / 100;
                         memory[I+1] = (V[X] / 10) % 10;
                         memory[I+2] = V[X] % 10;
@@ -448,10 +451,24 @@ class Chip8 {
                     }
                     // FX55 (MEM): Stores V0 to VX (including VX) in memory starting at address I.
                     //				The offset from I is increased by 1 for each value written, but I itself is left unmodified.
-                    case 0xF055: break; // TODO: implement this
+                    case 0xF055: {
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        for (int i = 0; i <= X; i++) {
+                            memory[I+i] = V[i];
+                        }
+                        I += X + 1; // I = I + X + 1; TODO: why is this needed? I didn't read this on the opcode description.
+                        break;
+                    }
                     // FX65 (MEM): Fills V0 to VX with values from memory starting at address I.
                     //				The offset from I is increased by 1 for each value read, but I itself is left unmodified.
-                    case 0xF065: break; // TODO: implement this
+                    case 0xF065: {
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        for (int i = 0; i <= X; i++) {
+                            V[i] = memory[I+i];
+                        }
+                        I += X + 1; // I = I + X + 1; TODO: why is this needed? I didn't read this on the opcode description.
+                        break;
+                    }
                 }
                 break;
 
@@ -476,19 +493,19 @@ class Chip8 {
 
     private:
         bool drawFlag;
-        unsigned short opcode;
-        unsigned char memory[MEMORY_SIZE];
-        unsigned char V[16]; // CPU registers
-        unsigned short I; // Index register / memory address register
-        unsigned short pc; // program counter
-        unsigned char delay_timer;
-        unsigned char sound_timer;
-        unsigned short stack[16];
-        unsigned short sp; // stack pointer
-        static unsigned char fontset[FONTSET_SIZE];
+        uint16_t opcode;
+        uint8_t memory[MEMORY_SIZE];
+        uint8_t V[16]; // CPU registers
+        uint16_t I; // Index register / memory address register
+        uint16_t pc; // program counter
+        uint8_t delay_timer;
+        uint8_t sound_timer;
+        uint16_t stack[16];
+        uint16_t sp; // stack pointer
+        static uint8_t fontset[FONTSET_SIZE];
 };
 
-unsigned char Chip8::fontset[FONTSET_SIZE] = 
+uint8_t Chip8::fontset[FONTSET_SIZE] =
 { 
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
