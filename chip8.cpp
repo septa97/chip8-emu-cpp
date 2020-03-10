@@ -437,7 +437,12 @@ class Chip8 {
                     }
                     // FX29 (MEM): Sets I to the location of the sprite for the character in VX.
                     // 				Characters 0-F (in hex) are represented by a 4x5 font.
-                    case 0xF029: break; // TODO: implement this
+                    case 0xF029: {
+                        uint16_t X = (opcode & 0x0F00) >> 8;
+                        I = V[X] * 5;
+                        pc += 2;
+                        break;
+                    }
                     // FX33 (MEM): Stores the binary-coded decimal (BCD) representation of VX,
                     //              with the most significant of three digits at the address in I,
                     //              the middle digit at I+1,
@@ -447,6 +452,7 @@ class Chip8 {
                         memory[I] = V[X] / 100;
                         memory[I+1] = (V[X] / 10) % 10;
                         memory[I+2] = V[X] % 10;
+                        pc += 2;
                         break;
                     }
                     // FX55 (MEM): Stores V0 to VX (including VX) in memory starting at address I.
@@ -457,6 +463,7 @@ class Chip8 {
                             memory[I+i] = V[i];
                         }
                         I += X + 1; // I = I + X + 1; TODO: why is this needed? I didn't read this on the opcode description.
+                        pc += 2;
                         break;
                     }
                     // FX65 (MEM): Fills V0 to VX with values from memory starting at address I.
@@ -467,6 +474,7 @@ class Chip8 {
                             V[i] = memory[I+i];
                         }
                         I += X + 1; // I = I + X + 1; TODO: why is this needed? I didn't read this on the opcode description.
+                        pc += 2;
                         break;
                     }
                 }
