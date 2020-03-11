@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
+#include <cassert>
 #define FONTSET_SIZE 80
 #define GFX_SIZE 2048
 #define KEYPAD_SIZE 16
@@ -221,15 +222,15 @@ class Chip8 {
                     case 0x8004: {
                         uint16_t X = (opcode & 0x0F00) >> 8;
                         uint16_t Y = (opcode & 0x00F0) >> 4;
+                        uint16_t result = V[X] + V[Y];
 
-                        // TODO: check if this is correct
-                        if (V[X] + V[Y] > 0xFF) {
+                        if (result > 0xFF) {
                             V[0xF] = 1;
                         } else {
                             V[0xF] = 0;
                         }
 
-                        V[X] += V[Y];
+                        V[X] = result & 0xFF;
                         pc += 2;
                         break;
                     }
@@ -238,7 +239,6 @@ class Chip8 {
                         uint16_t X = (opcode & 0x0F00) >> 8;
                         uint16_t Y = (opcode & 0x00F0) >> 4;
 
-                        // TODO: check if this is correct
                         if (V[X] - V[Y] < 0) {
                             V[0xF] = 0;
                         } else {
@@ -250,7 +250,7 @@ class Chip8 {
                         break;
                     }
                     // 8Xx6 (bitOp): Stores the least significant bit of VX in VF and then shifts VX to the right by 1.
-                    // "x" means no relevance
+                    // `x` means no relevance
                     case 0x8006: {
                         uint16_t X = (opcode & 0x0F00) >> 8;
                         V[0xF] = V[X] & 1;
@@ -275,7 +275,7 @@ class Chip8 {
                         break;
                     }
                     // 8XxE (bitOp): Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
-                    // "x" means no relevance
+                    // `x` means no relevance
                     case 0x800E: {
                         uint16_t X = (opcode & 0x0F00) >> 8;
                         V[0xF] = V[X] >> 7;
@@ -329,18 +329,24 @@ class Chip8 {
                 uint16_t N = opcode & 0x000F;
                 uint8_t pixel;
 
+                // assert that the height will not exceed the maximum height
+                // TODO: determine if it exceeds, should it write to the first index?
+                assert(V[Y]+N <= 32);
+
                 V[0xF] = 0;
 
                 for (int i= 0; i < N; i++) {
                     pixel = memory[I+i];
 
                     for (int j= 0; j < 8; j++) {
-                        // TODO: understand this
+                        // If the `jth` bit on the `pixel` is 1, flip the bit on `gfx`
                         if ((pixel & (0x80 >> j)) != 0) {
+                            // If the bit is `set to unset`
                             if (gfx[V[X] + j + ((V[Y] + i) * 64)] == 1) {
                                 V[0xF] = 1;
                             }
 
+                            // Flip bit using XOR
                             gfx[V[X] + j + ((V[Y] + i) * 64)] ^= 1;
                         }
                     }
