@@ -329,10 +329,6 @@ class Chip8 {
                 uint16_t N = opcode & 0x000F;
                 uint8_t pixel;
 
-                // assert that the height will not exceed the maximum height
-                // TODO: determine if it exceeds, should it write to the first index?
-                assert(V[Y]+N <= 32);
-
                 V[0xF] = 0;
 
                 for (int i= 0; i < N; i++) {
