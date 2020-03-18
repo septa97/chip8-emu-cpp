@@ -2,6 +2,8 @@
 #include <thread>
 #include <SDL2/SDL.h>
 #define KEYPAD_SIZE 16
+#define WIDTH 64
+#define HEIGHT 32
 
 #include "chip8.cpp"
 
@@ -27,7 +29,7 @@ SDL_Keycode keymap[KEYPAD_SIZE] = {
     SDLK_v
 };
 
-void drawFrame(SDL_Texture* texture, SDL_Renderer* renderer, uint32_t* pixels) {
+void draw_frame(SDL_Texture* texture, SDL_Renderer* renderer, uint32_t* pixels) {
     SDL_UpdateTexture(texture, NULL, pixels, 64 * sizeof(uint32_t));
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
@@ -40,6 +42,7 @@ int main(int argc, char *argv[]) {
     SDL_Event e;
 
     uint32_t pixels[64 * 32];
+    // bool pixels[64 * 32];
 
     Chip8 chip8 = Chip8();
 
@@ -116,7 +119,7 @@ int main(int argc, char *argv[]) {
                 // but bit ops are fancier ;)
             }
 
-            drawFrame(texture, renderer, pixels);
+            draw_frame(texture, renderer, pixels);
         }
 
         // TODO: research on emulator speed

@@ -143,7 +143,7 @@ class Chip8 {
                 uint16_t X = (opcode & 0x0F00) >> 8;
                 uint16_t NN = opcode & 0x00FF;
 
-                if (V[X] == NN) {
+                if (V[X] != NN) {
                     pc += 4;
                 } else {
                     pc += 2;
@@ -287,6 +287,7 @@ class Chip8 {
                     default:
                         printf("Unknown opcode.\n");
                 }
+                break;
             // 9XY0 (cond): Skips the next instruction if VX is not equal to VY.
             case 0x9000: {
                 uint16_t X = (opcode & 0x0F00) >> 8;
@@ -312,7 +313,7 @@ class Chip8 {
             case 0xC000: {
                 uint16_t X = (opcode & 0x0F00) >> 8;
                 uint16_t NN = opcode & 0x00FF;
-                uint8_t num = rand() % 0xFF;
+                uint8_t num = rand() % (0xFF + 1);
 
                 V[X] = num & NN;
                 pc += 2;
@@ -463,7 +464,6 @@ class Chip8 {
                         for (int i = 0; i <= X; i++) {
                             memory[I+i] = V[i];
                         }
-                        I += X + 1; // I = I + X + 1; TODO: why is this needed? I didn't read this on the opcode description.
                         pc += 2;
                         break;
                     }
@@ -474,7 +474,6 @@ class Chip8 {
                         for (int i = 0; i <= X; i++) {
                             V[i] = memory[I+i];
                         }
-                        I += X + 1; // I = I + X + 1; TODO: why is this needed? I didn't read this on the opcode description.
                         pc += 2;
                         break;
                     }
@@ -494,6 +493,7 @@ class Chip8 {
         if (sound_timer > 0) {
             if (sound_timer == 1) {
                 printf("BEEP!\n");
+                // TODO: implement sound
             }
 
             sound_timer--;
