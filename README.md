@@ -25,3 +25,6 @@
  A S D F 
  Z X C V 
 ```
+
+### Notes
+* I have yet to find the original controls of the games. For now, you must play using trial and error to find the correct keys. I'll research on this when I have the time.
