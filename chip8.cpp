@@ -10,8 +10,24 @@
 class Chip8 {
     public:
         bool drawFlag;
-        uint8_t gfx[GFX_SIZE]; // TODO: try using a 2D array here
+        uint8_t gfx[GFX_SIZE];
         uint8_t key[KEYPAD_SIZE]; // keypad
+
+    void update_timers() {
+        // update timers
+        if (delay_timer > 0) {
+            delay_timer--;
+        }
+
+        if (sound_timer > 0) {
+            if (sound_timer == 1) {
+                printf("BEEP!\n");
+                // TODO: implement sound
+            }
+
+            sound_timer--;
+        }
+    }
 
     bool load_rom(const char *file_path) {
         printf("Loading ROM %s...\n", file_path);
@@ -485,19 +501,7 @@ class Chip8 {
                 printf("Unknown opcode.\n");
         }
 
-        // update timers
-        if (delay_timer > 0) {
-            delay_timer--;
-        }
-
-        if (sound_timer > 0) {
-            if (sound_timer == 1) {
-                printf("BEEP!\n");
-                // TODO: implement sound
-            }
-
-            sound_timer--;
-        }
+        update_timers();
     }
 
     private:
