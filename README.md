@@ -27,4 +27,4 @@
 ```
 
 ### Notes
-* I have yet to find the original controls of the games. For now, you must play using trial and error to find the correct keys. I'll research on this when I have the time.
+* I have yet to find the original controls of the games. For now, you must play using trial and error to find the correct keys. Or better, you can research on the original controls (and maybe, link them to me :)). I'll research on this when I have the time.
