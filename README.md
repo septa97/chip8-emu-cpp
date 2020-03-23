@@ -2,7 +2,7 @@
 > CHIP-8 Emulator written in C++ (interpreted)
 
 ## Building the emulator
-* `make all`
+* `make`
 
 ## Running the emulator
 * `./chip8 <path-to-ROM-file>`
