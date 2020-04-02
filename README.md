@@ -1,6 +1,9 @@
 # chip8-emu-cpp
 > CHIP-8 Emulator written in C++ (interpreted)
 
+## Prerequisites
+* [SDL2](https://www.libsdl.org/download-2.0.php)
+
 ## Building the emulator
 * `make`
 
