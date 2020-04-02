@@ -1,5 +1,5 @@
 CC = g++
-OBJS = main.cpp
+OBJS = src/main.cpp
 LINKER_FLAGS = -lSDL2
 OBJ_NAME = chip8
 
