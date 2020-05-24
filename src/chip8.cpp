@@ -355,12 +355,13 @@ class Chip8 {
                         // If the `jth` bit on the `pixel` is 1, flip the bit on `gfx`
                         if ((pixel & (0x80 >> j)) != 0) {
                             // If the bit is `set to unset`
-                            if (gfx[V[X] + j + ((V[Y] + i) * 64)] == 1) {
+                            uint16_t idx = (V[X] + j + ((V[Y] + i) * 64)) % GFX_SIZE;
+                            if (gfx[idx] == 1) {
                                 V[0xF] = 1;
                             }
 
                             // Flip bit using XOR
-                            gfx[V[X] + j + ((V[Y] + i) * 64)] ^= 1;
+                            gfx[idx] ^= 1;
                         }
                     }
                 }

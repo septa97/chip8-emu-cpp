@@ -23,7 +23,7 @@ SDL_Keycode keymap[KEYPAD_SIZE] = {
     SDLK_a, // 7
     SDLK_s, // 8
     SDLK_d, // 9
-    SDLK_c, // E
+    SDLK_f, // E
     SDLK_z, // A
     SDLK_x, // 0
     SDLK_c, // B
