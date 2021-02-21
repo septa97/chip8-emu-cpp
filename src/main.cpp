@@ -4,7 +4,8 @@
 #define KEYPAD_SIZE 16
 #define WIDTH 64
 #define HEIGHT 32
-#define REFRESH_RATE 480
+#define IPS 600
+#define FPS 60
 
 #include "chip8.cpp"
 
@@ -81,19 +82,17 @@ int main(int argc, char *argv[]) {
         
     bool quit = false;
 
-    std::chrono::duration<double> tick(1.0/REFRESH_RATE);
+    int ipf = IPS/FPS; // instructions per frame
 
     while (!quit) {
-        auto start = std::chrono::system_clock::now();
-
-        chip8.emulate_cycle();
-
-        auto end = std::chrono::system_clock::now();
-        std::chrono::duration<double> exec_time = end - start;
-
-        if (exec_time.count() < 1.0/REFRESH_RATE) {
-            std::this_thread::sleep_for(tick - exec_time);
+        // perform the instructions before ticking the timers
+        for (int i = 0; i < ipf; i++) {
+            chip8.emulate_cycle();
         }
+
+        chip8.update_timers();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000/60)); // 16.667 milliseconds should be "almost" accurate
 
         while (SDL_PollEvent(&e)) { // 1 if there's an event, 0 if none
             // user requests to quit

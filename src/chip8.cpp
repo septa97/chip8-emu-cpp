@@ -408,8 +408,6 @@ class Chip8 {
             default:
                 printf("Unknown opcode.\n");
         }
-
-        update_timers();
     }
 
     private:
