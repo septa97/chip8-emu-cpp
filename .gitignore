@@ -1,4 +1,9 @@
+# executable
 chip8
+disassembler
 
 # Visual Studio directories and files
 .vs/
+
+# VSCode
+.vscode/
