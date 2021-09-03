@@ -6,11 +6,12 @@
 #define HEIGHT 32
 #define IPS 600
 #define FPS 60
+#define SCALE 10
 
 #include "chip8.cpp"
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = WIDTH * SCALE;
+const int SCREEN_HEIGHT = HEIGHT * SCALE;
 
 SDL_Keycode keymap[KEYPAD_SIZE] = {
     SDLK_1, // 1
